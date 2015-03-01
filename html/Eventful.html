@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Eventful</title>
+    <style>
+      body {
+        margin: 0px;
+      }
+      #header {
+        background-color: lightblue;
+        font-size: 18pt;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        text-align: center;
+        height: 30px;
+      }
+      #heading {
+        align: center;
+      }
+      #add {
+        float: right;
+        margin-right: 20px;
+        padding-left: 3px;
+        padding-right: 3px;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        border-radius: 5px;
+      }
+      #clear {
+        float: right;
+        margin-right: 20px;
+        padding-left: 3px;
+        padding-right: 3px;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        border-radius: 5px;
+      }
+    </style>
+    <script>
+      // mini-pico-tiny convenience micro-framework
+      function $(id){ return document.getElementById(id); }
+      function html(id, html){ $(id).innerHTML = html; }
+      function css(id, style){ $(id).style.cssText += ';'+style; }
+      function anim(id, transform, opacity, dur){
+        css(id, '-webkit-transition:-webkit-transform'+
+          ',opacity '+(dur||0.5)+'s,'+(dur||0.5)+'s;-webkit-transform:'+
+          transform+';opacity:'+(1||opacity));
+      }
+
+      function supports_html5_storage() {
+        try {
+          return 'localStorage' in window && window['localStorage'] !== null;
+        } catch (e) {
+          return false;
+        }
+      }
+    </script>
+    <script>
+      var events = new Array();
+
+      function event(description, when, isBirthday) {
+        this.description = description;
+        this.when = when;
+        this.isBirthday = isBirthday;
+      }
+
+      function addClicked() {
+        var newEvent = new event('Test Description', new Date(), false);
+        events.push(newEvent);
+
+        saveEvents();
+        renderEvents();
+      }
+
+      function clearClicked() {
+        clearEvents();
+      }
+
+      function clearEvents() {
+        events = new Array();
+        saveEvents();
+        renderEvents();
+      }
+      function saveEvents() {
+         var eventString = JSON.stringify(events);
+        // $('eventlist').innerHTML += eventString;
+        localStorage.setItem('events', eventString);
+      }
+
+      function loadEvents() {
+        var eventString = localStorage.getItem('events');
+        if (eventString)
+        {
+          events = JSON.parse(eventString);
+          renderEvents();
+        }
+      }
+
+      function renderEvents() {
+        $('eventlist').innerHTML = '';
+        for (var i = 0; i < events.length; i++) {
+          $('eventlist').innerHTML += events[i].description + '<br />';
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", function(event) {
+        //html('eventlist', '<h1>Loaded</h1>');
+
+        $('add').addEventListener('click', addClicked, false);
+        $('clear').addEventListener('click', clearClicked, false);
+
+        if (supports_html5_storage())
+          loadEvents();
+        else
+          html('eventlist', '<h1>local storage is not supported</h1>');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="header">
+      <span id="heading">Eventful</span>
+      <div id="clear">X</div>
+      <div id="add">+</div>
+    </div>
+    <div id="eventlist">
+    </div>
+  </body>
+</html>
