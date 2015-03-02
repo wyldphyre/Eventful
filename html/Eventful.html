@@ -93,7 +93,20 @@
         var eventString = localStorage.getItem('events');
         if (eventString)
         {
-          events = JSON.parse(eventString);
+          events = JSON.parse(eventString, function (key, value) {
+            var type;
+            if (value)
+            {
+              var timestamp = Date.parse(value);
+
+              if (isNaN(timestamp))
+                return value;
+              else
+                return new Date(value);
+            }
+            return value;
+          });
+
           renderEvents();
         }
       }
