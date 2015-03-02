@@ -5,19 +5,21 @@
     <style>
       body {
         margin: 0px;
+        font-family: verdana;
       }
       #header {
-        background-color: lightblue;
-        font-size: 18pt;
-        padding-top: 5px;
+        background-color: SteelBlue;
+        color: white;
+        font-size: 16pt;
+        padding-top: 10px;
         padding-bottom: 5px;
         text-align: center;
         height: 30px;
       }
-      #heading {
+      #header_heading {
         align: center;
       }
-      #add {
+      #header_add {
         float: right;
         margin-right: 20px;
         padding-left: 3px;
@@ -27,7 +29,7 @@
         border-style: solid;
         border-radius: 5px;
       }
-      #clear {
+      #header_clear {
         float: right;
         margin-right: 20px;
         padding-left: 3px;
@@ -36,6 +38,14 @@
         border-color: black;
         border-style: solid;
         border-radius: 5px;
+      }
+      .event {
+        padding: 5px 10px;
+      }
+      .event_description {
+        margin-bottom: 3px;
+      }
+      .event_when {
       }
     </style>
     <script>
@@ -58,7 +68,25 @@
       }
     </script>
     <script>
+      // a light weight date library
+      var DateFormatter = {
+        brief: function(date, separator) {
+          var day = date.getDay();
+          var month = date.getMonth() + 1;
+          var year = date.getFullYear();
+
+          if (!separator)
+            separator = '/';
+
+          return day + separator + month + separator + year;
+        },
+        verbose: function(date) {
+        }
+      };
+    </script>
+    <script>
       var events = new Array();
+      var verboseDates = false;
 
       function event(description, when, isBirthday) {
         this.description = description;
@@ -114,15 +142,34 @@
       function renderEvents() {
         $('eventlist').innerHTML = '';
         for (var i = 0; i < events.length; i++) {
-          $('eventlist').innerHTML += events[i].description + '<br />';
+          var event = events[i];
+          var eventDate = event.when.toLocaleDateString();
+
+          var eventElement = document.createElement('div');
+          eventElement.classList.add('event');
+          $('eventlist').appendChild(eventElement);
+
+          var descriptionElement = document.createElement('div');
+          descriptionElement.classList.add('event_description');
+          descriptionElement.appendChild(document.createTextNode(event.description));
+          eventElement.appendChild(descriptionElement);
+
+          // TODO: need to render text of birthdays differently, including showing when the next is due
+          if (event.isBirthday)
+            eventElement.appendChild(document.createTextNode(' - birthday'));
+
+          var whenElement = document.createElement('div');
+          whenElement.classList.add('event_when');
+          whenElement.appendChild(document.createTextNode(eventDate));
+          eventElement.appendChild(whenElement);
+
+          //$('eventlist').innerHTML += '<div id="event">' + event.description + '<br />' + event.when + '</div>';
         };
       }
 
       document.addEventListener("DOMContentLoaded", function(event) {
-        //html('eventlist', '<h1>Loaded</h1>');
-
-        $('add').addEventListener('click', addClicked, false);
-        $('clear').addEventListener('click', clearClicked, false);
+        $('header_add').addEventListener('click', addClicked, false);
+        $('header_clear').addEventListener('click', clearClicked, false);
 
         if (supports_html5_storage())
           loadEvents();
@@ -133,9 +180,9 @@
   </head>
   <body>
     <div id="header">
-      <span id="heading">Eventful</span>
-      <div id="clear">X</div>
-      <div id="add">+</div>
+      <span id="header_heading">Eventful</span>
+      <div id="header_clear">x</div>
+      <div id="header_add">+</div>
     </div>
     <div id="eventlist">
     </div>
